@@ -1,0 +1,114 @@
+#! /usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/inline"
+
+gemfile true do
+  source "https://rubygems.org"
+
+  gem "benchmark-ips"
+  gem "dry-transaction"
+  gem "pipeable", path: ".."
+end
+
+require "json"
+
+# Monad
+class Monader
+  include Dry::Monads[:result]
+
+  def call body
+    Success(body).fmap { |content| JSON content, symbolize_names: true }
+                 .fmap { |attributes| attributes.fetch :value }
+                 .fmap { |value| value.round 2 }
+                 .fmap { |value| value * 10 }
+  end
+end
+
+# Dry Transaction.
+class Transactor
+  include Dry::Monads[:result]
+  include Dry::Transaction
+
+  step :parse
+  step :fetch
+  step :round
+  step :multiply
+
+  private
+
+  def parse(body) = Success JSON(body, symbolize_names: true)
+
+  def fetch(attributes) = Success attributes.fetch(:value)
+
+  def round(value) = Success value.round(2)
+
+  def multiply(value) = Success value * 10
+end
+
+# Pipeable (fast).
+class FastPiper
+  include Pipeable
+
+  def call(body) = pipe body, :parse, :fetch, :round, :multiply
+
+  private
+
+  def parse(body) = body.fmap { |content| JSON content, symbolize_names: true }
+
+  def fetch(body) = body.fmap { |attributes| attributes.fetch :value }
+
+  def round(value) = value.fmap { |number| number.round 2 }
+
+  def multiply(value) = value.fmap { |number| number * 10 }
+end
+
+# Pipeable (slow).
+class SlowPiper
+  include Pipeable
+
+  def call body
+    pipe body,
+         fmap { |content| JSON content, symbolize_names: true },
+         as(:fetch, :value),
+         as(:round, 2),
+         as(:*, 10)
+  end
+end
+
+body = %({"value": 1.2345})
+monader = Monader.new
+transactor = Transactor.new
+fast_piper = FastPiper.new
+slow_piper = SlowPiper.new
+
+Benchmark.ips do |benchmark|
+  benchmark.config time: 5, warmup: 2
+
+  benchmark.report("Monad") { monader.call body }
+  benchmark.report("Dry Transction") { transactor.call body }
+  benchmark.report("Pipeable (fast)") { fast_piper.call body }
+  benchmark.report("Pipeable (slow)") { slow_piper.call body }
+
+  benchmark.compare!
+end
+
+__END__
+
+ruby 3.3.0 (2023-12-25 revision 5124f9ac75) +YJIT [arm64-darwin23.3.0]
+Warming up --------------------------------------
+               Monad    36.225k i/100ms
+      Dry Transction    12.101k i/100ms
+     Pipeable (fast)    19.601k i/100ms
+     Pipeable (slow)    15.758k i/100ms
+Calculating -------------------------------------
+               Monad    378.644k (± 1.7%) i/s -      1.920M in   5.072032s
+      Dry Transction    122.661k (± 1.4%) i/s -    617.151k in   5.032378s
+     Pipeable (fast)    197.678k (± 1.7%) i/s -    999.651k in   5.058257s
+     Pipeable (slow)    155.106k (± 1.9%) i/s -    787.900k in   5.081460s
+
+Comparison:
+               Monad:   378643.5 i/s
+     Pipeable (fast):   197678.2 i/s - 1.92x  slower
+     Pipeable (slow):   155106.5 i/s - 2.44x  slower
+      Dry Transction:   122661.2 i/s - 3.09x  slower
