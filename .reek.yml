@@ -5,3 +5,11 @@ exclude_paths:
 detectors:
   LongParameterList:
     enabled: false
+  NestedIterators:
+    exclude:
+      - "Pipeable::Stepable#define_pipe"
+      - "Pipeable::Stepable#define_steps"
+  TooManyStatements:
+    exclude:
+      - "Pipeable::Stepable#define_pipe"
+      - "Pipeable::Stepable#define_steps"
