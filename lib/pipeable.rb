@@ -10,7 +10,11 @@ end
 
 # Main namespace.
 module Pipeable
+  def self.included(descendant) = descendant.include Stepable.new
+
   def self.loader registry = Zeitwerk::Registry
     @loader ||= registry.loaders.find { |loader| loader.tag == File.basename(__FILE__, ".rb") }
   end
+
+  def self.with(...) = Stepable.new(...)
 end
