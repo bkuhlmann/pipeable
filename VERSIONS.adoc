@@ -1,5 +1,14 @@
 = Versions
 
-== 0.0.0 (2024-03-03)
+== 0.1.0 (2024-03-03)
 
-* Added initial implementation.
+* 🟢 Added documentation - Brooke Kuhlmann
+* 🟢 Added benchmark - Brooke Kuhlmann
+* 🟢 Added module - Brooke Kuhlmann
+* 🟢 Added stepable - Brooke Kuhlmann
+* 🟢 Added pipe - Brooke Kuhlmann
+* 🟢 Added steps - Brooke Kuhlmann
+* 🟢 Added steps - Brooke Kuhlmann
+* 🟢 Added composable - Brooke Kuhlmann
+* 🟢 Added gem dependencies - Brooke Kuhlmann
+* 🟢 Added project skeleton - Brooke Kuhlmann

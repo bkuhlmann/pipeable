@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |spec|
   spec.name = "pipeable"
-  spec.version = "0.0.0"
+  spec.version = "0.1.0"
   spec.authors = ["Brooke Kuhlmann"]
   spec.email = ["brooke@alchemists.io"]
   spec.homepage = "https://alchemists.io/projects/pipeable"
-  spec.summary = ""
+  spec.summary = "An implementation of the Railway Pattern for functional composable pipelines."
   spec.license = "Hippocratic-2.1"
 
   spec.metadata = {
