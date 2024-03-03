@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+module Pipeable
+  module Steps
+    # Wraps Dry Monads `#bind` method as a step.
+    class Bind < Abstract
+      def call(result) = result.bind { |input| base_block.call input }
+    end
+  end
+end
