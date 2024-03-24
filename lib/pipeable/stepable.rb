@@ -28,9 +28,7 @@ module Pipeable
 
     attr_reader :steps, :pipe, :instance_module
 
-    def define_pipe
-      local_pipe = pipe
-
+    def define_pipe local_pipe = pipe
       instance_module.define_method :pipe do |input, *steps|
         steps.each { |step| steps.supplant step, method(step) if step.is_a? Symbol }
         local_pipe.call(input, *steps)
