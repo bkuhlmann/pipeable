@@ -1,26 +1,26 @@
 # frozen_string_literal: true
 
-require "dry/container"
+require "containable"
 
 module Pipeable
   module Steps
     # Registers default steps.
     module Container
-      extend Dry::Container::Mixin
+      extend Containable
 
-      register(:as) { As }
-      register(:bind) { Bind }
-      register(:check) { Check }
-      register(:fmap) { Fmap }
-      register(:insert) { Insert }
-      register(:map) { Map }
-      register(:merge) { Merge }
-      register(:orr) { Or }
-      register(:tee) { Tee }
-      register(:to) { To }
-      register(:try) { Try }
-      register(:use) { Use }
-      register(:validate) { Validate }
+      register :as, As
+      register :bind, Bind
+      register :check, Check
+      register :fmap, Fmap
+      register :insert, Insert
+      register :map, Map
+      register :merge, Merge
+      register :orr, Or
+      register :tee, Tee
+      register :to, To
+      register :try, Try
+      register :use, Use
+      register :validate, Validate
     end
   end
 end

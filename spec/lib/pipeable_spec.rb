@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "dry/container"
+require "containable"
 require "spec_helper"
 
 RSpec.describe Pipeable do
@@ -29,7 +29,7 @@ RSpec.describe Pipeable do
     end
 
     it "includes custom behavior" do
-      container = Dry::Container.new
+      container = Module.new.extend Containable
       container.register(:echo) { -> result { result } }
       implementation = Class.new.include described_class.with(container)
 
