@@ -16,5 +16,7 @@ module Pipeable
     @loader ||= registry.loaders.find { |loader| loader.tag == File.basename(__FILE__, ".rb") }
   end
 
+  def self.[](container) = Stepable.new(container)
+
   def self.with(...) = Stepable.new(...)
 end

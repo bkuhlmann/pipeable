@@ -22,6 +22,16 @@ RSpec.describe Pipeable do
     end
   end
 
+  describe ".[]" do
+    it "includes custom behavior" do
+      container = Module.new.extend Containable
+      container.register(:echo) { -> result { result } }
+      implementation = Class.new.include described_class[container]
+
+      expect(implementation.ancestors.join(", ")).to include("Pipeable::Stepable")
+    end
+  end
+
   describe ".with" do
     it "includes default behavior" do
       implementation = Class.new.include described_class.with
