@@ -45,5 +45,10 @@ RSpec.describe Pipeable do
 
       expect(implementation.ancestors.join(", ")).to include("Pipeable::Stepable")
     end
+
+    it "prints deprecation warning" do
+      expectation = proc { Class.new.include described_class.with }
+      expect(&expectation).to output("`Module.with` is deprecated, use `.[]` instead.\n").to_stderr
+    end
   end
 end

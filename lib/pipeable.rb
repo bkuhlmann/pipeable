@@ -18,5 +18,8 @@ module Pipeable
 
   def self.[](container) = Stepable.new(container)
 
-  def self.with(...) = Stepable.new(...)
+  def self.with(...)
+    warn "`#{self.class}.#{__method__}` is deprecated, use `.[]` instead.", category: :deprecated
+    Stepable.new(...)
+  end
 end
