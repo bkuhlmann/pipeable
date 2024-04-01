@@ -1,5 +1,19 @@
 = Versions
 
+== 0.2.0 (2024-04-03)
+
+* 🟢 Added Containable gem - Brooke Kuhlmann
+* 🟢 Added deprecation warning for with method - Brooke Kuhlmann
+* 🟢 Added top-level setter - Brooke Kuhlmann
+* 🟢 Added version release notes - Brooke Kuhlmann
+* 🔼 Updated implementation to use Containable - Brooke Kuhlmann
+* 🔼 Updated setup script as a Ruby script - Brooke Kuhlmann
+* 🔼 Updated to Amazing Print 1.6.0 - Brooke Kuhlmann
+* ⛔️ Removed Dry Container gem - Brooke Kuhlmann
+* 🔁 Refactored Definer terminology - Brooke Kuhlmann
+* 🔁 Refactored defining of pipe method - Brooke Kuhlmann
+* 🔁 Refactored stepable as definer - Brooke Kuhlmann
+
 == 0.1.0 (2024-03-03)
 
 * 🟢 Added documentation - Brooke Kuhlmann

@@ -3,9 +3,8 @@
 :figure-caption!:
 
 :command_pattern_link: link:https://alchemists.io/articles/command_pattern[Command Pattern]
+:containable_link: link:https://alchemists.io/projects/containable[Containable]
 :debug_link: link:https://github.com/ruby/debug[Debug]
-:dry_container_link: link:https://dry-rb.org/gems/dry-container[Dry Container]
-:dry_events_link: link:https://dry-rb.org/gems/dry-events[Dry Events]
 :dry_monads_link: link:https://dry-rb.org/gems/dry-monads[Dry Monads]
 :dry_schema_link: link:https://dry-rb.org/gems/dry-schema[Dry Schema]
 :dry_validation_link: link:https://dry-rb.org/gems/dry-validation[Dry Validation]
@@ -25,8 +24,7 @@ toc::[]
 * Adheres to the {railway_pattern_link}.
 * Provides built-in and customizable domain-specific steps.
 * Provides chainable _pipes_ which can be used to build more complex workflows.
-* Compatible with {dry_monads_link}.
-* Compatible with {infusible_link}.
+* Compatible with the {containable_link}, {infusible_link}, and {dry_monads_link} gems.
 
 == Requirements
 
@@ -415,7 +413,7 @@ module CustomSteps
   end
 end
 
-Pipeable::Steps::Container.register(:join) { CustomSteps::Join }
+Pipeable::Steps::Container.register :join, CustomSteps::Join
 
 include Pipeable
 
@@ -428,27 +426,27 @@ pipe :a, insert(:b), join(""), as(:to_sym)
 
 === Containers
 
-Should you not want the basic steps, need custom steps, or a hybrid of default and custom steps, you can define your own container and provide it as an argument to `.with` when including pipeable behavior. Example:
+Should you not want the basic steps, need custom steps, or a hybrid of default and custom steps, you can define your own container and provide it as an argument to `.[]` when including pipeable behavior. Example:
 
 [source,ruby]
 ----
-require "dry/container"
+require "containable"
 
 module CustomContainer
-  extend Dry::Container::Mixin
+  extend Containable
 
   register :echo, -> result { result }
-  register(:insert) { Pipeable::Steps::Insert }
+  register :insert, Pipeable::Steps::Insert
 end
 
-include Pipeable.with(CustomContainer)
+include Pipeable[CustomContainer]
 
 pipe :a, echo, insert(:b)
 
 # Yields: Success [:a, :b]
 ----
 
-The above is a hybrid example where the `CustomContainer` registers a custom `echo` step along with the default `insert` step to make a new container. This is included when passed in as an argument via `.with` (i.e. `include Pipeable.with(CustomContainer)`).
+The above is a hybrid example where the `CustomContainer` registers a custom `echo` step along with the default `insert` step to make a new container. This is included when passed in as an argument via `.[]` (i.e. `include Pipeable[CustomContainer]`).
 
 Whether you use default, custom, or hybrid steps, you have maximum flexibility using this approach.
 
@@ -479,7 +477,7 @@ bin/console
 The architecture of this gem is built on top of the following concepts and gems:
 
 * {function_composition_link}: Made possible through the use of the `\#>>` and `#<<` methods on the link:https://rubyapi.org/3.1/o/method[Method] and link:https://rubyapi.org/3.1/o/proc[Proc] objects.
-* {dry_container_link}: Allows related dependencies to be grouped together for injection as desired.
+* {containable_link}: Allows related dependencies to be grouped together for injection as desired.
 * {dry_monads_link}: Critical to ensuring the entire pipeline of steps adhere to the {railway_pattern_link} and leans heavily on the `Result` object.
 * link:https://alchemists.io/projects/marameters[Marameters]: Through the use of the `.categorize` method, dynamic message passing is possible by inspecting the operation method's parameters.
 
