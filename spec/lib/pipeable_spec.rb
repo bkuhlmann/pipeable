@@ -28,7 +28,7 @@ RSpec.describe Pipeable do
       container.register(:echo) { -> result { result } }
       implementation = Class.new.include described_class[container]
 
-      expect(implementation.ancestors.join(", ")).to include("Pipeable::Stepable")
+      expect(implementation.ancestors.join(", ")).to include("Pipeable::Definer")
     end
   end
 
@@ -43,7 +43,7 @@ RSpec.describe Pipeable do
       container.register(:echo) { -> result { result } }
       implementation = Class.new.include described_class.with(container)
 
-      expect(implementation.ancestors.join(", ")).to include("Pipeable::Stepable")
+      expect(implementation.ancestors.join(", ")).to include("Pipeable::Definer")
     end
 
     it "prints deprecation warning" do

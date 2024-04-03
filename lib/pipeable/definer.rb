@@ -4,8 +4,8 @@ require "dry/monads"
 require "refinements/array"
 
 module Pipeable
-  # Allows an object to pipe steps together to composed a single result.
-  class Stepable < Module
+  # Defines the pipe and and associated step methods for an object.
+  class Definer < Module
     include Dry::Monads[:result]
 
     using Refinements::Array

@@ -7,9 +7,8 @@ detectors:
     enabled: false
   NestedIterators:
     exclude:
-      - "Pipeable::Stepable#define_pipe"
-      - "Pipeable::Stepable#define_steps"
+      - "Pipeable::Definer#define_pipe"
+      - "Pipeable::Definer#define_steps"
   TooManyStatements:
     exclude:
-      - "Pipeable::Stepable#define_pipe"
-      - "Pipeable::Stepable#define_steps"
+      - "Pipeable::Definer#define_steps"

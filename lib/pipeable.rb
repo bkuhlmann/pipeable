@@ -10,16 +10,16 @@ end
 
 # Main namespace.
 module Pipeable
-  def self.included(descendant) = descendant.include Stepable.new
+  def self.included(descendant) = descendant.include Definer.new
 
   def self.loader registry = Zeitwerk::Registry
     @loader ||= registry.loaders.find { |loader| loader.tag == File.basename(__FILE__, ".rb") }
   end
 
-  def self.[](container) = Stepable.new(container)
+  def self.[](container) = Definer.new(container)
 
   def self.with(...)
     warn "`#{self.class}.#{__method__}` is deprecated, use `.[]` instead.", category: :deprecated
-    Stepable.new(...)
+    Definer.new(...)
   end
 end
