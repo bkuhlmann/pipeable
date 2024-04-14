@@ -44,7 +44,7 @@ RSpec.describe Pipeable::Composable do
 
     it "fails when not implemented" do
       expectation = proc { Class.new.include(described_class).new.call }
-      expect(&expectation).to raise_error(NotImplementedError, "`#call` must be implemented.")
+      expect(&expectation).to raise_error(NoMethodError, "`#call` must be implemented.")
     end
   end
 end

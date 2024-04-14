@@ -7,6 +7,6 @@ module Pipeable
 
     def <<(other) = method(:call) << other
 
-    def call = fail NotImplementedError, "`#{self.class.name}##{__method__}` must be implemented."
+    def call = fail NoMethodError, "`#{self.class.name}##{__method__}` must be implemented."
   end
 end
