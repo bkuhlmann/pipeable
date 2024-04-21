@@ -1,5 +1,11 @@
 = Versions
 
+== 0.3.0 (2024-04-21)
+
+* ✅ Fixed not implemented errors to be no method errors instead - Brooke Kuhlmann
+* 🔼 Updated to Git Lint 7.3.0 - Brooke Kuhlmann
+* 🔼 Updated to Rake 13.2.0 - Brooke Kuhlmann
+
 == 0.2.0 (2024-04-03)
 
 * 🟢 Added Containable gem - Brooke Kuhlmann
