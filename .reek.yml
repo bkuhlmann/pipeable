@@ -9,6 +9,3 @@ detectors:
     exclude:
       - "Pipeable::Definer#define_pipe"
       - "Pipeable::Definer#define_steps"
-  TooManyStatements:
-    exclude:
-      - "Pipeable::Definer#define_steps"
