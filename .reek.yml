@@ -7,5 +7,5 @@ detectors:
     enabled: false
   NestedIterators:
     exclude:
-      - "Pipeable::Definer#define_pipe"
-      - "Pipeable::Definer#define_steps"
+      - "Pipeable::Builder#define_pipe"
+      - "Pipeable::Builder#define_steps"

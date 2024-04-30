@@ -5,7 +5,7 @@ require "refinements/array"
 
 module Pipeable
   # Defines the pipe and and associated step methods for an object.
-  class Definer < Module
+  class Builder < Module
     include Dry::Monads[:result]
 
     using Refinements::Array

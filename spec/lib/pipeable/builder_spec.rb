@@ -2,14 +2,14 @@
 
 require "spec_helper"
 
-RSpec.describe Pipeable::Definer do
+RSpec.describe Pipeable::Builder do
   subject(:pipeable) { implementation.new }
 
   describe "#call" do
     context "with a custom function step" do
       let :implementation do
         Class.new do
-          include Pipeable::Definer.new({echo: -> result { result }})
+          include Pipeable::Builder.new({echo: -> result { result }})
 
           def call(input) = pipe input, echo
         end
@@ -24,7 +24,7 @@ RSpec.describe Pipeable::Definer do
     context "with multiple steps" do
       let :implementation do
         Class.new do
-          include Pipeable::Definer.new
+          include Pipeable::Builder.new
 
           def call(input) = pipe input, insert("a", at: 0), insert("b")
         end
@@ -39,7 +39,7 @@ RSpec.describe Pipeable::Definer do
     context "with multiple method steps" do
       let :implementation do
         Class.new do
-          include Pipeable::Definer.new
+          include Pipeable::Builder.new
 
           def initialize seed = 5
             @seed = seed
@@ -66,7 +66,7 @@ RSpec.describe Pipeable::Definer do
     context "with multiple symbol steps" do
       let :implementation do
         Class.new do
-          include Pipeable::Definer.new
+          include Pipeable::Builder.new
 
           def initialize seed = 5
             @seed = seed
