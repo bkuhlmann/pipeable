@@ -1,5 +1,13 @@
 = Versions
 
+== 0.4.0 (2024-04-30)
+
+* 🔼 Updated builder to be frozen by default - Brooke Kuhlmann
+* 🔼 Updated definer as builder - Brooke Kuhlmann
+* 🔼 Updated to Ruby 3.3.1 - Brooke Kuhlmann
+* ⛔️ Removed deprecated with method - Brooke Kuhlmann
+* 🔁 Refactored builder to avoid intermediary class - Brooke Kuhlmann
+
 == 0.3.0 (2024-04-21)
 
 * ✅ Fixed not implemented errors to be no method errors instead - Brooke Kuhlmann
