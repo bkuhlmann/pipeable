@@ -12,11 +12,14 @@ module Pipeable
 
     def initialize container = Steps::Container, pipe: Pipe
       super()
+
       @container = container
       @pipe = pipe
 
       define_pipe
       define_steps
+
+      freeze
     end
 
     private

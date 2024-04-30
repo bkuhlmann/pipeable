@@ -5,6 +5,13 @@ require "spec_helper"
 RSpec.describe Pipeable::Builder do
   subject(:pipeable) { implementation.new }
 
+  describe "#initialize" do
+    it "is frozen" do
+      builder = described_class.new
+      expect(builder.frozen?).to be(true)
+    end
+  end
+
   describe "#call" do
     context "with a custom function step" do
       let :implementation do
