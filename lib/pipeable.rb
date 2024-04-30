@@ -12,11 +12,6 @@ end
 module Pipeable
   def self.[](container) = Builder.new(container)
 
-  def self.with(...)
-    warn "`#{self.class}.#{__method__}` is deprecated, use `.[]` instead.", category: :deprecated
-    Builder.new(...)
-  end
-
   def self.included(descendant) = descendant.include Builder.new
 
   def self.loader registry = Zeitwerk::Registry
