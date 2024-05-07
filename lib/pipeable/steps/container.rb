@@ -16,7 +16,6 @@ module Pipeable
       register :insert, Insert
       register :map, Map
       register :merge, Merge
-      register :orr, Or
       register :tee, Tee
       register :to, To
       register :try, Try
