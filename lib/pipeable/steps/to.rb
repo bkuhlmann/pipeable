@@ -4,24 +4,24 @@ require "marameters"
 
 module Pipeable
   module Steps
-    # Delegates to a non-callable operation which automatically wraps the result if necessary.
+    # Delegates to a non-callable object which automatically wraps the result if necessary.
     class To < Abstract
-      def initialize(operation, message, **)
+      def initialize(object, message, **)
         super(**)
-        @operation = operation
+        @object = object
         @message = message
       end
 
       def call result
         result.bind do |arguments|
-          splat = Marameters.categorize operation.method(message).parameters, arguments
-          wrap operation.public_send(message, *splat.positionals, **splat.keywords, &splat.block)
+          splat = Marameters.categorize object.method(message).parameters, arguments
+          wrap object.public_send(message, *splat.positionals, **splat.keywords, &splat.block)
         end
       end
 
       private
 
-      attr_reader :operation, :message
+      attr_reader :object, :message
 
       def wrap(result) = result.is_a?(Dry::Monads::Result) ? result : Success(result)
     end

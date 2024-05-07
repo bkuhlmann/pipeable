@@ -4,28 +4,28 @@ require "marameters"
 
 module Pipeable
   module Steps
-    # Checks if operation is true and then answers success (passthrough) or failure (with argument).
+    # Checks if proof is true and answers success (passthrough) or failure (with optional argument).
     class Check < Abstract
-      def initialize(operation, message, **)
-        super(**)
-        @operation = operation
+      def initialize proof, message
+        super()
+        @proof = proof
         @message = message
       end
 
       def call result
-        result.bind do |arguments|
-          answer = question arguments
-          answer == true || answer.is_a?(Success) ? result : Failure(arguments)
+        result.bind do |object|
+          answer = question object
+          answer == true || answer.is_a?(Success) ? result : Failure(object)
         end
       end
 
       private
 
-      attr_reader :operation, :message
+      attr_reader :proof, :message
 
-      def question arguments
-        splat = Marameters.categorize operation.method(message).parameters, arguments
-        operation.public_send(message, *splat.positionals, **splat.keywords, &splat.block)
+      def question object
+        splat = Marameters.categorize proof.method(message).parameters, object
+        proof.public_send(message, *splat.positionals, **splat.keywords, &splat.block)
       end
     end
   end

@@ -2,19 +2,19 @@
 
 module Pipeable
   module Steps
-    # Merges initialized attributes with step argument for use by a subsequent step.
+    # Merges initialized attributes with step object for use by subsequent step.
     class Merge < Abstract
-      def initialize as: :step, **keywords
-        super(**keywords)
+      def initialize(as: :step, **)
+        super(**)
         @as = as
       end
 
       def call result
-        result.fmap do |input|
-          if input.is_a? Hash
-            input.merge! base_keywords
+        result.fmap do |object|
+          if object.is_a? Hash
+            object.merge! base_keywords
           else
-            {as => input}.merge!(base_keywords)
+            {as => object}.merge!(base_keywords)
           end
         end
       end

@@ -13,12 +13,12 @@ RSpec.describe Pipeable::Steps::Tee do
     context "with success" do
       let(:result) { Success "test" }
 
-      it "calls operation with no arguments" do
+      it "messages operation with no arguments" do
         step.call result
         expect(operation).to have_received(:call)
       end
 
-      it "calls operation with positional and keyword arguments" do
+      it "messages operation with positional and keyword arguments" do
         step = described_class.new operation, :call, "one", two: 2
         step.call result
 
@@ -33,7 +33,7 @@ RSpec.describe Pipeable::Steps::Tee do
     context "with failure" do
       let(:result) { Failure "Danger!" }
 
-      it "call operation" do
+      it "messages operation" do
         step.call result
         expect(operation).to have_received(:call)
       end

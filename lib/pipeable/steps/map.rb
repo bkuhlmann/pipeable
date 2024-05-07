@@ -2,7 +2,7 @@
 
 module Pipeable
   module Steps
-    # Maps over a collection, processing each element, and answering a new result.
+    # Maps over an enumerable, processes each element, and answers a new enumerable.
     class Map < Abstract
       def call(result) = result.fmap { |collection| collection.map(&base_block) }
     end

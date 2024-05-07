@@ -2,10 +2,10 @@
 
 module Pipeable
   module Steps
-    # Allows result to be messaged as a callable.
+    # Messages object, with optional arguments, as different result.
     class As < Abstract
       def call result
-        result.fmap { |operation| operation.public_send(*base_positionals, **base_keywords) }
+        result.fmap { |object| object.public_send(*base_positionals, **base_keywords) }
       end
     end
   end

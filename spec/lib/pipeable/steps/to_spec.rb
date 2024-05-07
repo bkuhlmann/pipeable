@@ -5,22 +5,22 @@ require "spec_helper"
 RSpec.describe Pipeable::Steps::To do
   include Dry::Monads[:result]
 
-  subject(:step) { described_class.new operation.new, :for }
+  subject(:step) { described_class.new object.new, :for }
 
-  let :operation do
+  let :object do
     Class.new Pipeable::Steps::Abstract do
       def for(first, last: 2) = Dry::Monads::Success base_positionals.append(first, last)
     end
   end
 
   describe "#call" do
-    it "answers success with monadic operation" do
+    it "answers success with monadic object" do
       result = step.call Success([1, {last: 3}])
       expect(result.success).to eq([1, 3])
     end
 
-    context "with non-monadic operation" do
-      subject(:step) { described_class.new operation.new, :for }
+    context "with non-monadic object" do
+      subject(:step) { described_class.new object.new, :for }
 
       it "answers success" do
         result = step.call Success([1, {last: 3}])
@@ -29,7 +29,7 @@ RSpec.describe Pipeable::Steps::To do
     end
 
     context "with non-monadic response" do
-      let :operation do
+      let :object do
         Class.new Pipeable::Steps::Abstract do
           def for(first, last: 2) = base_positionals.append(first, last)
         end
@@ -42,19 +42,17 @@ RSpec.describe Pipeable::Steps::To do
     end
 
     context "with keywords" do
-      subject(:step) { described_class.new operation, :for }
+      subject(:step) { described_class.new object, :for }
 
-      let :operation do
-        Struct.new :label, keyword_init: true do
-          include Dry::Monads[:result]
-
-          def self.for(...) = Dry::Monads::Success new(...)
+      let :object do
+        Struct.new :label do
+          def self.for(**) = Dry::Monads::Success new(**)
         end
       end
 
       it "answers success" do
         result = step.call Success(label: :test)
-        expect(result.success).to eq(operation[label: :test])
+        expect(result.success).to eq(object[label: :test])
       end
     end
 

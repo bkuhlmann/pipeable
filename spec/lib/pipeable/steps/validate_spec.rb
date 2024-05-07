@@ -6,9 +6,9 @@ require "spec_helper"
 RSpec.describe Pipeable::Steps::Validate do
   include Dry::Monads[:result]
 
-  subject(:step) { described_class.new operation }
+  subject(:step) { described_class.new contract }
 
-  let(:operation) { Dry::Schema.Params { required(:label).filled :string } }
+  let(:contract) { Dry::Schema.Params { required(:label).filled :string } }
 
   describe "#call" do
     it "answers success with valid payload" do
@@ -17,14 +17,14 @@ RSpec.describe Pipeable::Steps::Validate do
     end
 
     it "answers success with valid payload and no conversion" do
-      step = described_class.new operation, as: nil
+      step = described_class.new contract, as: nil
       result = step.call Success(label: "Test")
 
       expect(result.success.to_h).to eq(label: "Test")
     end
 
     it "answers success with valid payload as specific type" do
-      step = described_class.new operation, as: :inspect
+      step = described_class.new contract, as: :inspect
       result = step.call Success(label: "Test")
 
       expect(result.success).to eq(%(#<Dry::Schema::Result{:label=>"Test"} errors={} path=[]>))

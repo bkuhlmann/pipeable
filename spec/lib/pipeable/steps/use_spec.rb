@@ -5,9 +5,9 @@ require "spec_helper"
 RSpec.describe Pipeable::Steps::Use do
   include Dry::Monads[:result]
 
-  subject(:step) { described_class.new operation }
+  subject(:step) { described_class.new command }
 
-  let(:operation) { -> input { Success input * 2 } }
+  let(:command) { -> input { Success input * 2 } }
 
   describe "#call" do
     it "answers success" do

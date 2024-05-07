@@ -2,7 +2,7 @@
 
 module Pipeable
   module Steps
-    # Inserts elements before, after, or around input.
+    # Inserts elements before or after an object.
     class Insert < Abstract
       LAST = -1
 
@@ -13,8 +13,8 @@ module Pipeable
       end
 
       def call result
-        result.fmap do |input|
-          cast = input.is_a?(Array) ? input : [input]
+        result.fmap do |object|
+          cast = object.is_a?(Array) ? object : [object]
           value.is_a?(Array) ? cast.insert(at, *value) : cast.insert(at, value)
         end
       end

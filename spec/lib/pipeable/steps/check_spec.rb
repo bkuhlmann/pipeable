@@ -5,9 +5,9 @@ require "spec_helper"
 RSpec.describe Pipeable::Steps::Check do
   include Dry::Monads[:result]
 
-  subject(:step) { described_class.new operation, :include? }
+  subject(:step) { described_class.new proof, :include? }
 
-  let(:operation) { %i[a b c] }
+  let(:proof) { %i[a b c] }
 
   describe "#call" do
     it "answers success when true" do
@@ -16,7 +16,7 @@ RSpec.describe Pipeable::Steps::Check do
     end
 
     it "answers success when a success" do
-      allow(operation).to receive(:include?).and_return(Success("Included."))
+      allow(proof).to receive(:include?).and_return(Success("Included."))
       result = Success :a
 
       expect(step.call(result)).to eq(Success(:a))

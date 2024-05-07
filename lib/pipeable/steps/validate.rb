@@ -2,17 +2,17 @@
 
 module Pipeable
   module Steps
-    # Validates a result via a callable operation.
+    # Validates result via a callable contract.
     class Validate < Abstract
-      def initialize(operation, as: :to_h, **)
+      def initialize(contract, as: :to_h, **)
         super(**)
-        @operation = operation
+        @contract = contract
         @as = as
       end
 
       def call result
         result.bind do |payload|
-          value = operation.call payload
+          value = contract.call payload
 
           return Failure value if value.failure?
 
@@ -22,7 +22,7 @@ module Pipeable
 
       private
 
-      attr_reader :operation, :as
+      attr_reader :contract, :as
     end
   end
 end

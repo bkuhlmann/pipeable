@@ -2,7 +2,7 @@
 
 module Pipeable
   module Steps
-    # Messages operation, without any response checks, while passing input through as output.
+    # Messages operation, without any checks, while passing input through as output.
     class Tee < Abstract
       def initialize(operation, *, **)
         super(*, **)

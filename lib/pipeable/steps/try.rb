@@ -2,15 +2,15 @@
 
 module Pipeable
   module Steps
-    # Messages a risky operation which may pass or fail.
+    # Sends a risky message to an object which may pass or fail.
     class Try < Abstract
-      def initialize *positionals, catch:, **keywords
-        super(*positionals, **keywords)
+      def initialize(*, catch:, **)
+        super(*, **)
         @catch = catch
       end
 
       def call result
-        result.fmap { |operation| operation.public_send(*base_positionals, **base_keywords) }
+        result.fmap { |object| object.public_send(*base_positionals, **base_keywords) }
       rescue *Array(catch) => error
         Failure error.message
       end

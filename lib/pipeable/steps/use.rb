@@ -2,18 +2,18 @@
 
 module Pipeable
   module Steps
-    # Use another transaction -- or any command -- which answers a result.
+    # Messages a command (or pipe) which answers a result.
     class Use < Abstract
-      def initialize(operation, **)
+      def initialize(command, **)
         super(**)
-        @operation = operation
+        @command = command
       end
 
-      def call(result) = result.bind { |input| operation.call input }
+      def call(result) = result.bind { |input| command.call input }
 
       private
 
-      attr_reader :operation
+      attr_reader :command
     end
   end
 end
