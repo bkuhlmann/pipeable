@@ -4,8 +4,8 @@ module Pipeable
   module Steps
     # Validates result via a callable contract.
     class Validate < Abstract
-      def initialize(contract, as: :to_h, **)
-        super(**)
+      def initialize contract, as: nil
+        super()
         @contract = contract
         @as = as
       end

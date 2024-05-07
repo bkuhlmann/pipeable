@@ -11,13 +11,13 @@ RSpec.describe Pipeable::Steps::Validate do
   let(:contract) { Dry::Schema.Params { required(:label).filled :string } }
 
   describe "#call" do
-    it "answers success with valid payload" do
+    it "answers success with valid payload and defaults" do
       result = step.call Success(label: "Test")
-      expect(result.success).to eq(label: "Test")
+      expect(result.success).to eq(contract.call(label: "Test"))
     end
 
-    it "answers success with valid payload and no conversion" do
-      step = described_class.new contract, as: nil
+    it "answers success with valid payload and hash conversion" do
+      step = described_class.new contract, as: :to_h
       result = step.call Success(label: "Test")
 
       expect(result.success.to_h).to eq(label: "Test")
