@@ -8,6 +8,7 @@ module Pipeable
     module Container
       extend Containable
 
+      register :alt, Or
       register :as, As
       register :bind, Bind
       register :check, Check
