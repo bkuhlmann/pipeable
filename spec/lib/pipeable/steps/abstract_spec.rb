@@ -13,8 +13,7 @@ RSpec.describe Pipeable::Steps::Abstract do
       /
         @base_positionals=\["test"\],\s
         @base_keywords=\{:label=>"Value"\},\s
-        @base_block=\#<Proc.+,\s
-        @marameters=Marameters
+        @base_block=\#<Proc.+
       /x
     end
 
@@ -25,8 +24,7 @@ RSpec.describe Pipeable::Steps::Abstract do
         /
           @base_positionals=\[\],\s
           @base_keywords=\{\},\s
-          @base_block=nil,\s
-          @marameters=Marameters
+          @base_block=nil
         /x
       )
     end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "marameters"
+
 module Pipeable
   module Steps
     # Checks if operation is true and then answers success (passthrough) or failure (with argument).
@@ -22,7 +24,7 @@ module Pipeable
       attr_reader :operation, :message
 
       def question arguments
-        splat = marameters.categorize operation.method(message).parameters, arguments
+        splat = Marameters.categorize operation.method(message).parameters, arguments
         operation.public_send(message, *splat.positionals, **splat.keywords, &splat.block)
       end
     end
