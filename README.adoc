@@ -10,11 +10,12 @@
 :dry_validation_link: link:https://dry-rb.org/gems/dry-validation[Dry Validation]
 :function_composition_link: link:https://alchemists.io/articles/ruby_function_composition[Function Composition]
 :infusible_link: link:https://alchemists.io/projects/infusible[Infusible]
+:method_parameters_and_arguments_link: link:https://alchemists.io/articles/ruby_method_parameters_and_arguments[Method Parameters And Arguments]
 :railway_pattern_link: link:https://fsharpforfunandprofit.com/posts/recipe-part2[Railway Pattern]
 
 = Pipeable
 
-A DSL for workflows built atop native {function_composition_link} which leverages the {railway_pattern_link}. This allows you to write a sequence of _steps_ that cleanly read from left-to-right or top-to-bottom which results in a success or a failure without having to rely on exceptions which are expensive and should not be used for control flow.
+A DSL for workflows built atop native {function_composition_link} which leverages the {railway_pattern_link}. This allows you to write a sequence of _steps_ that cleanly read from top-to-bottom or left-to-right resulting in a single success or a failure. This allows you to avoid relying on exceptions for expensive control flows and/or complex conditional logic in general.
 
 toc::[]
 
@@ -29,7 +30,7 @@ toc::[]
 == Requirements
 
 . link:https://www.ruby-lang.org[Ruby].
-. A strong understanding of {function_composition_link}.
+. A strong understanding of {function_composition_link} and {method_parameters_and_arguments_link}.
 
 == Setup
 
@@ -65,7 +66,7 @@ require "pipeable"
 
 == Usage
 
-You can turn any object into a _transaction_ by requiring and including this gem as follows:
+You can turn any object into a _pipe_ by requiring and including this gem as follows:
 
 [source,ruby]
 ----
@@ -100,7 +101,7 @@ class Demo
 end
 ----
 
-The above allows `Demo#call` to be a sequence steps which may pass or fail due to all step being {dry_monads_link}. This is the essence of the {railway_pattern_link}.
+The above allows `Demo#call` to be a sequence of steps which may pass or fail due to all steps using {dry_monads_link} for input and output. This is the essence of the {railway_pattern_link}.
 
 To execute the above example, you'd only need to pass CSV content to it:
 
@@ -151,19 +152,44 @@ Then the above would look like this using native Ruby:
 ).call Success(csv)
 ----
 
-The problem with native function composition is that it reads backwards by passing your input at the end of all sequential steps. With the `#pipe` method, you have the benefit of allowing your eye to read the code from top to bottom in addition to not having to type multiple _forward composition_ operators.
+The problem with native function composition is that it reads backwards by passing input at the end of all sequential steps. With the `#pipe` method, you have the benefit of allowing your eyes to read from top to bottom while not having to type multiple _forward composition_ operators.
 
 === Steps
 
-There are several ways to compose steps for your pipe. As long as all steps succeed, you'll get a successful response. Otherwise, the first step to fail will pass the failure down by skipping all subsequent steps (unless you dynamically attempt to turn the failure into a success). The following sections detail how to mix and match steps for building a robust implementation.
+There are several ways to compose steps for your pipe. As long as all steps succeed, you'll get a successful response. Otherwise, the first step to fail will pass the failure down by skipping all subsequent steps (unless you dynamically turn the failure into a success).
+
+Each step expects a {dry_monads_link} `Result` object as input and answers either the same or new `Result` object for consumption by the next step in the pipe. Additionally, each step will either unwrap the `Result` or pass the `Result` through depending on the step's implementation. These details are noted in each step's documentation below complete with _i/o_ (input/output) and _example_ sections.
 
 ==== Basic
 
-The following are the basic (default) steps for building for more advanced functionality.
+The following are the basic (default) steps for building custom pipes for which you can mix and match within your own implementation.
+
+===== Alt
+
+Allows you to operate on a failure and produce either a success or another failure. This is a convenience wrapper to native {dry_monads_link} `#or` functionality.
+
+*I/O*
+
+Processes a failure only while expecting you to answer a success or failure.
+
+*Example*
+
+[source,ruby]
+----
+pipe %i[a b c], alt { |object| Success object.join("-") }          # Success [:a, :b, :c]
+pipe Failure("Danger!"), alt { Success "Resolved" }                # Success "Resolved"
+pipe Failure("Danger!"), alt { |object| Failure "Big #{object}" }  # Failure "Big Danger!"
+----
 
 ===== As
 
-Allows you to message the input as different output. Example:
+Allows you to message an object as a different result. The first argument is the method but additional positional and/or keyword arguments can be passed along if the method accepts them.
+
+*I/O*
+
+Processes and answers a success only.
+
+*Example*
 
 [source,ruby]
 ----
@@ -174,18 +200,30 @@ pipe Failure("Danger!"), as(:inspect)  # Failure "Danger!"
 
 ===== Bind
 
-Allows you to perform operations on a successful result only. You are then responsible for answering a success or failure accordingly. This is a convenience wrapper to native {dry_monads_link} `#bind` functionality. Example:
+Allows you to perform operations upon success only. You are then responsible for answering a success or failure accordingly. This is a convenience wrapper to native {dry_monads_link} `#bind` functionality.
+
+*I/O*
+
+Processes a success only while expecting you to answer a success or failure in return.
+
+*Example*
 
 [source,ruby]
 ----
-pipe %i[a b c], bind { |input| Success input.join("-") }           # Success "a-b-c"
-pipe %i[a b c], bind { |input| Failure input }                     # Failure [:a, :b, :c]
-pipe Failure("Danger!"), bind { |input| Success input.join("-") }  # Failure "Danger!"
+pipe %i[a b c], bind { |object| Success object.join("-") }           # Success "a-b-c"
+pipe %i[a b c], bind { |object| Failure object }                     # Failure [:a, :b, :c]
+pipe Failure("Danger!"), bind { |object| Success object.join("-") }  # Failure "Danger!"
 ----
 
 ===== Check
 
-Allows you to check if the input and messaged object evaluate to `true` or `Success`. When successful, input is passed through as a `Success`. When false, input is passed through as a `Failure`. Example:
+Allows you to check if an object matches the proof (with message). The first argument is your proof while the second argument is the message to send to your proof. A check only passes if the messaged object evaluates to `true` or `Success`. When successful, the object is passed through as a `Success`. When false, the object is passed through as a `Failure`.
+
+*I/O*
+
+Processes a success only while answering a success or failure depending on whether unwrapped object checks against the proof.
+
+*Example*
 
 [source,ruby]
 ----
@@ -196,17 +234,29 @@ pipe Failure("Danger!"), check(%i[a b], :include?)  # Failure "Danger!"
 
 ===== Fmap
 
-Allows you to unwrap a successful operation, make a modification, and rewrap the modification as a new success. This is a convenience wrapper to native {dry_monads_link} `#fmap` functionality. Example:
+Allows you to unwrap a success, make a modification, and rewrap the modification as a new success. This is a convenience wrapper to native {dry_monads_link} `#fmap` functionality.
+
+*I/O*
+
+Processes and answers a success only.
+
+*Example*
 
 [source,ruby]
 ----
-pipe %i[a b c], fmap { |input| input.join "-" }           # Success "a-b-c"
-pipe Failure("Danger!"), fmap { |input| input.join "-" }  # Failure "Danger!"
+pipe %i[a b c], fmap { |object| object.join "-" }           # Success "a-b-c"
+pipe Failure("Danger!"), fmap { |object| object.join "-" }  # Failure "Danger!"
 ----
 
 ===== Insert
 
-Allows you to insert an element after the input (default behavior) and wraps native link:https://rubyapi.org/o/array#method-i-insert[Array#insert] functionality. If the input is not an array, it will be cast as one. You can use the `:at` key to specify where you want insertion to happen. This step is most useful when needing to assemble arguments for passing to a subsequent step. Example:
+Allows you to insert an element after an object (default behavior). This step wraps native link:https://rubyapi.org/o/array#method-i-insert[Array#insert] functionality. If the object is not an array, it will be cast as one. You can use the `:at` key to specify where you want insertion to happen. This step is most useful when needing to assemble arguments for passing to a subsequent step.
+
+*I/O*
+
+Processes and answers a success only.
+
+*Example*
 
 [source,ruby]
 ----
@@ -218,7 +268,13 @@ pipe Failure("Danger!"), insert(:b)  # Failure "Danger!"
 
 ===== Map
 
-Allows you to map over an enumerable and wraps native link:https://rubyapi.org/o/enumerable#method-i-map[Enumerable#map] functionality.
+Allows you to map over an object (enumerable) by wrapping native link:https://rubyapi.org/o/enumerable#method-i-map[Enumerable#map] functionality.
+
+*I/O*
+
+Processes and answers a success only.
+
+*Example*
 
 [source,ruby]
 ----
@@ -228,7 +284,13 @@ pipe Failure("Danger!"), map(&:inspect)  # Failure "Danger!"
 
 ===== Merge
 
-Allows you to merge the input with additional attributes as a single hash. If the input is not a hash, then the input will be merged with the attributes using `step` as the key. The default `step` key can be renamed to a different key by using the `:as` key. Like the _Insert_ step, this is most useful when needing to assemble arguments and/or data for consumption by subsequent steps. Example:
+Allows you to merge an object with additional attributes as a single hash. If the input is not a hash, then the object will be merged with `step` as the key. The default `step` key can be renamed to a different key by using the `:as` key. Like the _Insert_ step, this is most useful when assembling arguments and/or data for consumption by subsequent steps
+
+*I/O*
+
+Processes and answers a success only.
+
+*Example*
 
 [source,ruby]
 ----
@@ -238,24 +300,15 @@ pipe "test", merge(as: :a, b: 2)      # Success {a: "test", b: 2}
 pipe Failure("Danger!"), merge(b: 2)  # Failure "Danger!"
 ----
 
-===== Orr
-
-Allows you to operate on a failure and produce either a success or another failure. This is a convenience wrapper to native {dry_monads_link} `#or` functionality.
-
-ℹ️ Syntactically, `or` can't be used for this step since `or` is a native Ruby keyword so `orr` is used instead.
-
-Example:
-
-[source,ruby]
-----
-pipe %i[a b c], orr { |input| Success input.join("-") }          # Success [:a, :b, :c]
-pipe Failure("Danger!"), orr { Success "Resolved" }              # Success "Resolved"
-pipe Failure("Danger!"), orr { |input| Failure "Big #{input}" }  # Failure "Big Danger!"
-----
-
 ===== Tee
 
-Allows you to run an operation and ignore the response while input is passed through as output. This behavior is similar in nature to the link:https://www.gnu.org/savannah-checkouts/gnu/gawk/manual/html_node/Tee-Program.html[tee] program in Bash. Example:
+Allows you to run an operation and ignore the response while input is passed through as output. This behavior is similar in nature to the link:https://www.gnu.org/savannah-checkouts/gnu/gawk/manual/html_node/Tee-Program.html[tee] program in Bash.
+
+*I/O*
+
+Passes the result through while allowing you to execute arbitrary behavior.
+
+*Example*
 
 [source,ruby]
 ----
@@ -272,14 +325,20 @@ pipe Failure("Danger!"), tee(Kernel, :puts, "Example.")
 
 ===== To
 
-Allows you to delegate to an object -- which doesn't have a callable interface and may or may not answer a result -- for processing of input. If the response is not a monad, it'll be automatically wrapped as a `Success`. Example:
+Allows you to delegate to an object which doesn't have a callable interface and may or may not answer a result. If the response is not a monad, it'll be automatically wrapped as a `Success`.
+
+*I/O*
+
+Processes a success only while sending the unwrapped object to the given object's corresponding method. The object is expected to answer either a plain Ruby object which will be automatically wrapped as a success or a {dry_monads_link} `Result`.
+
+*Example*
 
 [source,ruby]
 ----
-Model = Struct.new :label, keyword_init: true do
+Model = Struct.new :label do
   include Dry::Monads[:result]
 
-  def self.for(...) = Success new(...)
+  def self.for(**) = Success new(**)
 end
 
 pipe({label: "Test"}, to(Model, :for))    # Success #<struct Model label="Test">
@@ -288,22 +347,42 @@ pipe Failure("Danger!"), to(Model, :for)  # Failure "Danger!"
 
 ===== Try
 
-Allows you to try an operation which may fail while catching the exception as a failure for further processing. Example:
+Allows you to try an operation which may fail while catching any exceptions as a failure for further processing. You can catch a single exception by providing the exception as a single value or multiple exceptions as an array of values.
+
+*I/O*
+
+Processes and answers a success only if there are no exceptions. Otherwise, captures any error as a failure.
+
+*Example*
 
 [source,ruby]
 ----
-pipe "test", try(:to_json, catch: JSON::ParserError)     # Success "\"test\""
-pipe "test", try(:invalid, catch: NoMethodError)         # Failure "undefined method..."
-pipe Failure("Danger!"), try(:to_json, catch: JSON::ParserError)  # Failure "Danger!"
+pipe "test", try(:to_json, catch: JSON::ParserError)
+# Success "\"test\""
+
+pipe "test", try(:to_json, catch: [JSON::ParserError, StandardError])
+# Success "\"test\""
+
+pipe "test", try(:invalid, catch: NoMethodError)
+# Failure(#<NoMethodError: undefined method `invalid' for an instance of String>)
+
+pipe Failure("Danger!"), try(:to_json, catch: JSON::ParserError)
+# Failure "Danger!"
 ----
 
 ===== Use
 
-Allows you to use another transaction which might have multiple steps of it's own, use an object that adheres to the {command_pattern_link}, or any function which answers a {dry_monads_link} `Result` object. In other words, you can use _use_ any object which responds to `#call` and answers a {dry_monads_link} `Result` object. This is great for chaining multiple transactions together.
+Allows you to use another pipe to build a superpipe, use an object that adheres to the {command_pattern_link}, or any function which answers a {dry_monads_link} `Result` object. In other words, you can use _use_ any object which responds to `#call` that answers a {dry_monads_link} `Result` object. This is great for chaining multiple pipes together (i.e. superpipes).
+
+*I/O*
+
+Processes a success only while sending the unwrapped object to the command (or pipe) for further processing. A {dry_monads_link} `Result` is expected to be answered by the command.
+
+*Example*
 
 [source,ruby]
 ----
-function = -> input { Success input * 3 }
+function = -> number { Success number * 3 }
 
 pipe 3, use(function)                   # Success 9
 pipe Failure("Danger!"), use(function)  # Failure "Danger!"
@@ -311,17 +390,30 @@ pipe Failure("Danger!"), use(function)  # Failure "Danger!"
 
 ===== Validate
 
-Allows you to use an operation that will validate the input. This is especially useful when using {dry_schema_link}, {dry_validation_link}, or any operation that can respond to `#call` while answering a result that can be converted into a hash.
+Allows you to use an contract for validating an object. This is especially useful when using {dry_schema_link}, {dry_validation_link}, or any contract that responds to `#call` and answers a `Result`.
 
-By default, the `:as` key uses `:to_h` as it's value so you get automatic casting to a `Hash`. Use `nil`, as the value, to disable this behavior. You can also pass in any value to the `:as` key which is a valid method that the result will respond to.
+💡 Ensure you enable the {dry_monads_link} extension for {dry_schema_link} and/or {dry_validation_link} when using this step since this step expects the contract to respond to the `#to_monad` message.
+
+By default, the `:as` key's value is `nil``. Use `:to_h`, for example, as the value for automatic casting to a `Hash`. You can also pass in any value to the `:as` key which is a valid method that the contract's result will respond to.
+
+*I/O*
+
+Processes a success only. A success will be rewrapped as a success if the `:as` keyword is supplied. Otherwise, any failure is immediately passed through.
+
+*Example*
 
 [source,ruby]
 ----
 schema = Dry::Schema.Params { required(:label).filled :string }
 
-pipe({label: "Test"}, validate(schema))           # Success label: "Test"
-pipe({label: "Test"}, validate(schema, as: nil))  # Success #<Dry::Schema::Result{:label=>"Test"} errors={} path=[]>
-pipe Failure("Danger!"), validate(schema)         # Failure "Danger!"
+pipe({label: "Test"}, validate(schema))
+# Success label: "Test"
+
+pipe({label: "Test"}, validate(schema, as: nil))
+# Success #<Dry::Schema::Result{:label=>"Test"} errors={} path=[]>
+
+pipe Failure("Danger!"), validate(schema)
+# Failure "Danger!"
 ----
 
 ==== Advanced
@@ -334,8 +426,8 @@ You can always use a `Proc` as a custom step. Example:
 
 [source,ruby]
 ----
-include Pipeable
 include Dry::Monads[:result]
+include Pipeable
 
 pipe :a,
      insert(:b),
@@ -355,7 +447,7 @@ include Pipeable
 
 pipe :a,
      insert(:b),
-     -> result { result.fmap { |input| input.join "_" } },
+     -> result { result.fmap { |items| items.join "_" } },
      as(:to_sym)
 
 # Yields: Success :a_b
@@ -363,35 +455,30 @@ pipe :a,
 
 ===== Methods
 
-Methods -- in addition to procs and lambdas -- are the _preferred_ way to add custom steps due to the concise syntax. Example:
+Methods, in addition to procs and lambdas, are the _preferred_ way to add custom steps due to the concise syntax. Example:
 
 [source,ruby]
 ----
 class Demo
   include Pipeable
 
-  def call input
-    pipe :a,
-         insert(:b),
-         :join,
-         as(:to_sym)
-  end
+  def call(input) = pipe input, insert(:b), :join, as(:to_sym)
 
   private
 
-  def join(result) = result.fmap { |input| input.join "_" }
+  def join(result) = result.fmap { |items| items.join "_" }
 end
 
-Demo.new.call :a  # Yields: Success :a_b
+Demo.new.call :a  # Success :a_b
 ----
 
-All methods can be referenced by symbol as shown via `:join` above. Using a symbol is syntactic sugar for link:https://rubyapi.org/o/object#method-i-method[Object#method] so the use of the `:join` symbol is the same as using `method(:join)`. Both work but the former requires less typing than the latter.
+All methods can be referenced by symbol as shown via `:join` above. Using a symbol is syntactic sugar for link:https://rubyapi.org/o/object#method-i-method[Object#method] so `:join` (symbol) is the same as using `method(:join)`. Both work but the former requires less typing.
 
 ===== Custom
 
 If you'd like to define permanent and reusable steps, you can register a custom step which requires you to:
 
-. Define a custom step as a new class.
+. Define a custom step as a class, lambda, or proc.
 . Register your custom step along side the existing default steps.
 
 Here's what this would look like:
@@ -405,7 +492,7 @@ module CustomSteps
       @delimiter = delimiter
     end
 
-    def call(result) = result.fmap { |input| input.join delimiter }
+    def call(result) = result.fmap { |items| items.join delimiter }
 
     private
 
@@ -418,11 +505,81 @@ Pipeable::Steps::Container.register :join, CustomSteps::Join
 include Pipeable
 
 pipe :a, insert(:b), join, as(:to_sym)
-# Yields: Success :a_b
+# Success :a_b
 
 pipe :a, insert(:b), join(""), as(:to_sym)
-# Yields: Success :ab
+# Success :ab
 ----
+
+A lambda or proc can be used too (albeit in limited capacity). Here's a version of the above using a lambda:
+
+[source,ruby]
+----
+module CustomSteps
+  Join = -> result { result.fmap { |items| items.join "_" } }
+end
+
+Pipeable::Steps::Container.register :join, CustomSteps::Join
+
+include Pipeable
+
+puts pipe(:a, insert(:b), join, as(:to_sym))
+# Success :a_b
+----
+
+=== Superpipes
+
+Superpipes, as first hinted at in the `use` step above, are a combination of _pipeable_ objects chained together as individual steps. This allows you to reuse existing pipeable objects in new and interesting ways. Here's an contrived, but simple, example of what a superpipe looks like when built from pipeable objects:
+
+[source,ruby]
+----
+class One
+  include Pipeable
+
+  def initialize label = "one"
+    @label = label
+  end
+
+  def call(item) = pipe item, insert(label, at: 0)
+
+  private
+
+  attr_reader :label
+end
+
+class Two
+  include Pipeable
+
+  def initialize label = "two"
+    @label = label
+  end
+
+  def call(item) = pipe item, insert(label)
+
+  private
+
+  attr_reader :label
+end
+
+class Three
+  include Pipeable
+
+  def initialize one: One.new, two: Two.new
+    @one = one
+    @two = two
+  end
+
+  def call(item) = pipe item, use(one), use(two)
+
+  private
+
+  attr_reader :one, :two
+end
+----
+
+Notice, `One` and `Two` are standard pipeable objects with their own individual steps while `Three` injects both `One` and `Two` as dependencies and then subsequently pipes them together within it's own `#call` method via the `use` step. This is essence of a superpipe. ...and, yes, a superpipe can be an individual step too in some other object. Turtles all the way down (or up). 😉
+
+Again, the above is contrived but hopefully this illustrates how you can build more complex architectures from smaller pipes.
 
 === Containers
 
@@ -448,7 +605,7 @@ pipe :a, echo, insert(:b)
 
 The above is a hybrid example where the `CustomContainer` registers a custom `echo` step along with the default `insert` step to make a new container. This is included when passed in as an argument via `.[]` (i.e. `include Pipeable[CustomContainer]`).
 
-Whether you use default, custom, or hybrid steps, you have maximum flexibility using this approach.
+Whether you use default, custom, or hybrid steps, you have maximum flexibility when using containers.
 
 === Composition
 
@@ -483,14 +640,14 @@ The architecture of this gem is built on top of the following concepts and gems:
 
 === Style Guide
 
-* *Transactions*
-** Use a single method (i.e. `#call`) which is public and adheres to the {command_pattern_link} so transactions can be piped together if desired.
+* *Pipes*
+** Use a single method (i.e. `#call`) which is public and adheres to the {command_pattern_link} so multiple pipes can be piped together (i.e. superpipes) if desired.
 * *Steps*
 ** Inherit from the `Abstract` class to gain monad, composition, and dependency behavior. This allows subclasses to have direct access to the base positional, keyword, and block arguments. These variables are prefixed with `base_*` in order to not conflict with subclasses which might only want to use non-prefixed variables for convenience.
-** All filtered arguments -- in other words, the unused arguments -- need to be passed up to the superclass from the subclass (i.e. `super(*positionals, **keywords, &block)`). Doing so allows the superclass (i.e. `Abstract`) to provide access to `base_positionals`, `base_keywords`, and `base_block` for use if desired by the subclass.
+** All filtered arguments -- in other words, unused arguments -- need to be passed up to the superclass from the subclass (i.e. `super(*positionals, **keywords, &block)`). Doing so allows the superclass (i.e. `Abstract`) to provide access to `base_positionals`, `base_keywords`, and `base_block` for use if desired by the subclass.
 ** The `#call` method must define a single positional `result` parameter since a monad will be passed as an argument. Example: `def call(result) = # Implementation`.
-** Each block within the `#call` method should use the `input` parameter to be consistent. More specific parameters like `argument` or `operation` should be used to improve readability when possible. Example: `def call(result) = result.bind { |input| # Implementation }`.
-** Use implicit blocks sparingly. Most of the default steps shy away from using blocks because it can make the code more complex. Use private methods, custom steps, and/or separate transactions if the code becomes too complex because you might have a smaller object which needs extraction.
+** Each block within the `#call` method should use the `object` parameter to be consistent. More specific parameters like `operation` or `contract` should be used to improve readability when context allows. Example: `def call(result) = result.bind { |object| # Implementation }`.
+** Use implicit blocks sparingly. Most of the default steps shy away from using blocks because the code becomes more complex. Use private methods, custom steps, and/or separate pipes if the code becomes too complex because you might have a smaller object which needs extraction.
 
 === Debugging
 
@@ -508,7 +665,7 @@ The above breakpoint will allow you inspect the result of the `#check` step and/
 
 === Troubleshooting
 
-The following might be of aid to as you implement your own transactions.
+The following might be of aid to as you implement your own pipes.
 
 ==== Type Errors
 

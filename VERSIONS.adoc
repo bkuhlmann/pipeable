@@ -1,5 +1,15 @@
 = Versions
 
+== 0.5.0 (2024-05-07)
+
+* ✅ Fixed try step to include full error object - Brooke Kuhlmann
+* ✅ Fixed validate step to not default to automatic hash conversion - Brooke Kuhlmann
+* 🟢 Added alt step - Brooke Kuhlmann
+* 🔼 Updated validate step to use monadic contracts - Brooke Kuhlmann
+* ⛔️ Removed Marameters from abstract class - Brooke Kuhlmann
+* ⛔️ Removed or step - Brooke Kuhlmann
+* 🔁 Refactored step terminology - Brooke Kuhlmann
+
 == 0.4.0 (2024-04-30)
 
 * 🔼 Updated builder to be frozen by default - Brooke Kuhlmann
