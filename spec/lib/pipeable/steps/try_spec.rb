@@ -31,14 +31,14 @@ RSpec.describe Pipeable::Steps::Try do
       step = described_class.new :bogus, catch: NoMethodError
       result = step.call Success("test")
 
-      expect(result.failure).to match(/undefined method `bogus'/)
+      expect(result.failure.inspect).to match(/NoMethodError.+undefined method `bogus'/)
     end
 
     it "answers failure with invalid arguments" do
       step = described_class.new :split, :bogus, catch: TypeError
       result = step.call Success("test")
 
-      expect(result.failure).to match(/wrong argument type/)
+      expect(result.failure.inspect).to match(/TypeError.+wrong argument type.+/)
     end
 
     it "answers exception with wrong exception caught" do

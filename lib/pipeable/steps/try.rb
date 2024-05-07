@@ -12,7 +12,7 @@ module Pipeable
       def call result
         result.fmap { |object| object.public_send(*base_positionals, **base_keywords) }
       rescue *Array(catch) => error
-        Failure error.message
+        Failure error
       end
 
       private
