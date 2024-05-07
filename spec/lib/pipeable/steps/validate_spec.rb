@@ -3,6 +3,8 @@
 require "dry/schema"
 require "spec_helper"
 
+Dry::Schema.load_extensions :monads
+
 RSpec.describe Pipeable::Steps::Validate do
   include Dry::Monads[:result]
 

@@ -10,19 +10,15 @@ module Pipeable
         @as = as
       end
 
-      def call result
-        result.bind do |payload|
-          value = contract.call payload
-
-          return Failure value if value.failure?
-
-          Success(as ? value.public_send(as) : value)
-        end
-      end
+      def call(result) = result.bind { |payload| cast payload }
 
       private
 
       attr_reader :contract, :as
+
+      def cast payload
+        contract.call(payload).to_monad.fmap { |data| as ? data.public_send(as) : data }
+      end
     end
   end
 end
