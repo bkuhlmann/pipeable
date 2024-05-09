@@ -1,5 +1,9 @@
 = Versions
 
+== 0.6.0 (2024-05-12)
+
+* 🟢 Added amap (alt map) step - Brooke Kuhlmann
+
 == 0.5.0 (2024-05-07)
 
 * ✅ Fixed try step to include full error object - Brooke Kuhlmann
