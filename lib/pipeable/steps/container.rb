@@ -9,6 +9,7 @@ module Pipeable
       extend Containable
 
       register :alt, Or
+      register :amap, Amap
       register :as, As
       register :bind, Bind
       register :check, Check
