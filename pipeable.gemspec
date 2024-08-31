@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.metadata = {
     "bug_tracker_uri" => "https://github.com/bkuhlmann/pipeable/issues",
     "changelog_uri" => "https://alchemists.io/projects/pipeable/versions",
-    "documentation_uri" => "https://alchemists.io/projects/pipeable",
+    "homepage_uri" => "https://alchemists.io/projects/pipeable",
     "funding_uri" => "https://github.com/sponsors/bkuhlmann",
     "label" => "Pipeable",
     "rubygems_mfa_required" => "true",
