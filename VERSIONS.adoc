@@ -1,5 +1,10 @@
 = Versions
 
+== 0.9.1 (2024-08-31)
+
+* 🟢 Added README Developer Certificate of Origin documentation - Brooke Kuhlmann
+* 🔼 Updated gem specification documentation URI as homepage URI - Brooke Kuhlmann
+
 == 0.9.0 (2024-08-17)
 
 * 🔼 Updated to Refinements 12.7.0 - Brooke Kuhlmann
