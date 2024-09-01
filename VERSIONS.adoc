@@ -1,5 +1,10 @@
 = Versions
 
+== 0.10.0 (2024-09-01)
+
+* 🔼 Updated gem specification to support Ruby 3.4.0 - Brooke Kuhlmann
+* 🔼 Updated to Refinements 12.8.0 - Brooke Kuhlmann
+
 == 0.9.1 (2024-08-31)
 
 * 🟢 Added README Developer Certificate of Origin documentation - Brooke Kuhlmann
