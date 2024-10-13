@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 3.3", "<= 3.4"
   spec.add_dependency "containable", "~> 0.2"
   spec.add_dependency "dry-monads", "~> 1.6"
-  spec.add_dependency "marameters", "~> 3.2"
+  spec.add_dependency "marameters", "~> 3.9"
   spec.add_dependency "refinements", "~> 12.9"
   spec.add_dependency "zeitwerk", "~> 2.7"
 
