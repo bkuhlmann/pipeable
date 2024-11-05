@@ -1,5 +1,9 @@
 = Versions
 
+== 0.13.0 (2024-11-05)
+
+* 🔼 Updated to Refinements 12.10.0 - Brooke Kuhlmann
+
 == 0.12.0 (2024-10-17)
 
 * 🔼 Updated to Marameters 3.9.0 - Brooke Kuhlmann
