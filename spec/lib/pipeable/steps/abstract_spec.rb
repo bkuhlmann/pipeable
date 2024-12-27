@@ -12,7 +12,7 @@ RSpec.describe Pipeable::Steps::Abstract do
     let :proof do
       /
         @base_positionals=\["test"\],\s
-        @base_keywords=\{:label=>"Value"\},\s
+        @base_keywords=\{label:\s"Value"\},\s
         @base_block=\#<Proc.+
       /x
     end

@@ -31,7 +31,7 @@ RSpec.describe Pipeable::Steps::Try do
       step = described_class.new :bogus, catch: NoMethodError
       result = step.call Success("test")
 
-      expect(result.failure.inspect).to match(/NoMethodError.+undefined method `bogus'/)
+      expect(result.failure.inspect).to match(/NoMethodError.+undefined method 'bogus'/)
     end
 
     it "answers failure with invalid arguments" do

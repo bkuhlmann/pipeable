@@ -29,7 +29,7 @@ RSpec.describe Pipeable::Steps::Validate do
       step = described_class.new contract, as: :inspect
       result = step.call Success(label: "Test")
 
-      expect(result.success).to eq(%(#<Dry::Schema::Result{:label=>"Test"} errors={} path=[]>))
+      expect(result.success).to eq(%(#<Dry::Schema::Result{label: "Test"} errors={} path=[]>))
     end
 
     it "answers failure with invalid payload" do
