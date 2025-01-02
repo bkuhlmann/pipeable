@@ -6,22 +6,21 @@ module Pipeable
     class Insert < Abstract
       LAST = -1
 
-      def initialize(*positionals, at: LAST, **)
-        super(*positionals, **)
-        @value = positionals.empty? ? base_keywords : positionals.flatten
+      def initialize(*, at: LAST)
+        super(*)
         @at = at
       end
 
       def call result
         result.fmap do |object|
           cast = object.is_a?(Array) ? object : [object]
-          value.is_a?(Array) ? cast.insert(at, *value) : cast.insert(at, value)
+          cast.insert(at, *base_positionals)
         end
       end
 
       private
 
-      attr_reader :value, :at
+      attr_reader :at
     end
   end
 end
