@@ -7,7 +7,8 @@ gemfile true do
   source "https://rubygems.org"
 
   gem "benchmark-ips"
-  gem "dry-transaction"
+  gem "dry-operation"
+  gem "debug"
   gem "pipeable", path: ".."
 end
 
@@ -25,15 +26,14 @@ class Monader
   end
 end
 
-# Dry Transaction.
-class Transactor
-  include Dry::Monads[:result]
-  include Dry::Transaction
-
-  step :parse
-  step :fetch
-  step :round
-  step :multiply
+# Dry Operation.
+class Operator < Dry::Operation
+  def call body
+    attributes = step parse(body)
+    value = step fetch(attributes)
+    value = step round(value)
+    step multiply(value)
+  end
 
   private
 
@@ -78,7 +78,7 @@ end
 
 body = %({"value": 1.2345})
 monader = Monader.new
-transactor = Transactor.new
+operator = Operator.new
 fast_piper = FastPiper.new
 slow_piper = SlowPiper.new
 
@@ -86,7 +86,7 @@ Benchmark.ips do |benchmark|
   benchmark.config time: 5, warmup: 2
 
   benchmark.report("Monad") { monader.call body }
-  benchmark.report("Dry Transction") { transactor.call body }
+  benchmark.report("Dry Operation") { operator.call body }
   benchmark.report("Pipeable (fast)") { fast_piper.call body }
   benchmark.report("Pipeable (slow)") { slow_piper.call body }
 
@@ -95,20 +95,20 @@ end
 
 __END__
 
-ruby 3.3.0 (2023-12-25 revision 5124f9ac75) +YJIT [arm64-darwin23.3.0]
+ruby 3.4.1 (2024-12-25 revision 48d4efcb85) +YJIT +PRISM [arm64-darwin24.2.0]
 Warming up --------------------------------------
-               Monad    36.225k i/100ms
-      Dry Transction    12.101k i/100ms
-     Pipeable (fast)    19.601k i/100ms
-     Pipeable (slow)    15.758k i/100ms
+               Monad    83.290k i/100ms
+       Dry Operation    95.562k i/100ms
+     Pipeable (fast)    32.432k i/100ms
+     Pipeable (slow)    25.984k i/100ms
 Calculating -------------------------------------
-               Monad    378.644k (± 1.7%) i/s -      1.920M in   5.072032s
-      Dry Transction    122.661k (± 1.4%) i/s -    617.151k in   5.032378s
-     Pipeable (fast)    197.678k (± 1.7%) i/s -    999.651k in   5.058257s
-     Pipeable (slow)    155.106k (± 1.9%) i/s -    787.900k in   5.081460s
+               Monad    824.997k (± 1.6%) i/s    (1.21 μs/i) -      4.164M in   5.049192s
+       Dry Operation    999.131k (± 1.4%) i/s    (1.00 μs/i) -      5.065M in   5.070237s
+     Pipeable (fast)    328.682k (± 1.7%) i/s    (3.04 μs/i) -      1.654M in   5.033756s
+     Pipeable (slow)    258.314k (± 1.9%) i/s    (3.87 μs/i) -      1.299M in   5.031204s
 
 Comparison:
-               Monad:   378643.5 i/s
-     Pipeable (fast):   197678.2 i/s - 1.92x  slower
-     Pipeable (slow):   155106.5 i/s - 2.44x  slower
-      Dry Transction:   122661.2 i/s - 3.09x  slower
+       Dry Operation:   999130.6 i/s
+               Monad:   824996.6 i/s - 1.21x  slower
+     Pipeable (fast):   328682.2 i/s - 3.04x  slower
+     Pipeable (slow):   258314.3 i/s - 3.87x  slower
