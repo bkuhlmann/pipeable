@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Pipeable::Steps::Use do
-  include Dry::Monads[:result]
-
   subject(:step) { described_class.new command }
 
   let(:command) { -> input { Success input * 2 } }
@@ -12,12 +10,12 @@ RSpec.describe Pipeable::Steps::Use do
   describe "#call" do
     it "answers success" do
       result = step.call Success(3)
-      expect(result.success).to eq(6)
+      expect(result).to be_success(6)
     end
 
     it "passes failure through" do
       result = step.call Failure("Danger!")
-      expect(result.failure).to eq("Danger!")
+      expect(result).to be_failure("Danger!")
     end
   end
 end

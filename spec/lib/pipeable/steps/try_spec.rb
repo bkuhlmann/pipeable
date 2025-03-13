@@ -3,28 +3,26 @@
 require "spec_helper"
 
 RSpec.describe Pipeable::Steps::Try do
-  include Dry::Monads[:result]
-
   subject(:step) { described_class.new :inspect, catch: NoMethodError }
 
   describe "#call" do
     it "answers success with no arguments" do
       result = step.call Success(:test)
-      expect(result.success).to eq(":test")
+      expect(result).to be_success(":test")
     end
 
     it "answers success with positional arguments" do
       step = described_class.new :split, ".", catch: NoMethodError
       result = step.call Success("one.two")
 
-      expect(result.success).to eq(%w[one two])
+      expect(result).to be_success(%w[one two])
     end
 
     it "answers success with positional and keyword arguments" do
       step = described_class.new :transform_keys, label: :title, catch: NoMethodError
       result = step.call Success(label: "Test")
 
-      expect(result.success).to eq(title: "Test")
+      expect(result).to be_success(title: "Test")
     end
 
     it "answers failure with invalid message" do
@@ -50,7 +48,7 @@ RSpec.describe Pipeable::Steps::Try do
 
     it "passes failures through" do
       result = step.call Failure("Danger!")
-      expect(result.failure).to eq("Danger!")
+      expect(result).to be_failure("Danger!")
     end
   end
 end

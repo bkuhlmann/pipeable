@@ -13,6 +13,8 @@ end
 
 Bundler.require :tools
 
+require "dry/monads"
+require "dry/schema"
 require "pipeable"
 require "refinements"
 
@@ -41,5 +43,10 @@ RSpec.configure do |config|
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
     mocks.verify_partial_doubles = true
+  end
+
+  config.before :suite do
+    Dry::Monads.load_extensions :rspec
+    Dry::Schema.load_extensions :monads
   end
 end

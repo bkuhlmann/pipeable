@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe Pipeable::Steps::Tee do
-  include Dry::Monads[:result]
-
   subject(:step) { described_class.new operation, :call }
 
   let(:operation) { instance_spy Proc }

@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-require "dry/monads"
 require "spec_helper"
 
 RSpec.describe Pipeable::Steps::Abstract do
-  include Dry::Monads[:result]
-
   describe ".new" do
     let(:implementation) { Class.new described_class }
 

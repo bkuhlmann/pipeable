@@ -9,21 +9,21 @@ RSpec.describe Pipeable::Steps::Merge do
 
   describe "#call" do
     it "answers success with both attributes merged" do
-      expect(step.call(Success(b: 2))).to eq(Success(a: 1, b: 2))
+      expect(step.call(Success(b: 2))).to be_success(a: 1, b: 2)
     end
 
     it "answers success with object merged with attributes using default key" do
-      expect(step.call(Success("test"))).to eq(Success(a: 1, step: "test"))
+      expect(step.call(Success("test"))).to be_success(a: 1, step: "test")
     end
 
     it "answers success with object merged with attributes using custom key" do
       step = described_class.new a: 1, as: :text
-      expect(step.call(Success("test"))).to eq(Success(a: 1, text: "test"))
+      expect(step.call(Success("test"))).to be_success(a: 1, text: "test")
     end
 
     it "passes failures through" do
       result = step.call Failure("Danger!")
-      expect(result.failure).to eq("Danger!")
+      expect(result).to be_failure("Danger!")
     end
   end
 end

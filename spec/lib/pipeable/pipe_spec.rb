@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-require "dry/monads"
 require "spec_helper"
 
 RSpec.describe Pipeable::Pipe do
-  include Dry::Monads[:result]
-
   subject(:pipe) { described_class }
 
   describe "#call" do
@@ -29,22 +26,22 @@ RSpec.describe Pipeable::Pipe do
 
     it "answers success with primitive input" do
       result = pipe.call 5, doubler
-      expect(result).to eq(Success(10))
+      expect(result).to be_success(10)
     end
 
     it "answers success with monad input" do
       result = pipe.call Success(5), doubler
-      expect(result).to eq(Success(10))
+      expect(result).to be_success(10)
     end
 
     it "answers failure when given a failure" do
       result = pipe.call Failure("Danger!"), doubler
-      expect(result).to eq(Failure("Danger!"))
+      expect(result).to be_failure("Danger!")
     end
 
     it "answers success for multiple function steps" do
       result = pipe.call 5, doubler, doubler, doubler
-      expect(result).to eq(Success(40))
+      expect(result).to be_success(40)
     end
 
     it "answers success for multiple method steps" do
