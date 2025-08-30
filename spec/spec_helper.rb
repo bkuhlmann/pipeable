@@ -49,4 +49,6 @@ RSpec.configure do |config|
     Dry::Monads.load_extensions :rspec
     Dry::Schema.load_extensions :monads
   end
+
+  Kernel.srand config.seed
 end
