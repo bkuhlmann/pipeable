@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "containable", "~> 1.1"
   spec.add_dependency "dry-monads", "~> 1.9"
   spec.add_dependency "marameters", "~> 4.1"
-  spec.add_dependency "refinements", "~> 13.3"
+  spec.add_dependency "refinements", "~> 13.5"
   spec.add_dependency "zeitwerk", "~> 2.7"
 
   spec.extra_rdoc_files = Dir["README*", "LICENSE*"]
