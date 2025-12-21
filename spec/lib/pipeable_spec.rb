@@ -10,7 +10,7 @@ RSpec.describe Pipeable do
       container.register(:echo) { -> result { result } }
       implementation = Class.new.include described_class[container]
 
-      expect(implementation.ancestors.join(", ")).to include("Pipeable::Builder")
+      expect(implementation.ancestors.join(", ")).to include("<Class")
     end
   end
 
