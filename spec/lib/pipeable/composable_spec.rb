@@ -24,14 +24,24 @@ RSpec.describe Pipeable::Composable do
   let(:multiplier) { -> value { value * 2 } }
 
   describe "#>>" do
-    it "answers computed value" do
+    it "answers computed value when first" do
+      result = (composable >> multiplier).call 3
+      expect(result).to eq(16)
+    end
+
+    it "answers computed value when last" do
       result = (multiplier >> composable).call 3
       expect(result).to eq(11)
     end
   end
 
   describe "#<<" do
-    it "answers computed value" do
+    it "answers computed value when first" do
+      result = (composable << multiplier).call 3
+      expect(result).to eq(11)
+    end
+
+    it "answers computed value when last" do
       result = (multiplier << composable).call 3
       expect(result).to eq(16)
     end

@@ -35,10 +35,12 @@ module Pipeable
 
     def define_steps vessel = container
       vessel.each_key do |key|
+        # simplecov:disable method
         define_method key do |*positionals, **keywords, &block|
           step = vessel[key]
           step.is_a?(Proc) ? step : step.new(*positionals, **keywords, &block)
         end
+        # simplecov:enable method
       end
     end
   end
