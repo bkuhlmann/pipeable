@@ -4,6 +4,7 @@
 
 :command_pattern_link: link:https://alchemists.io/articles/command_pattern[Command Pattern]
 :containable_link: link:https://alchemists.io/projects/containable[Containable]
+:core_link: link:https://alchemists.io/projects/core[Core]
 :debug_link: link:https://github.com/ruby/debug[Debug]
 :dry_monads_link: link:https://dry-rb.org/gems/dry-monads[Dry Monads]
 :dry_schema_link: link:https://dry-rb.org/gems/dry-schema[Dry Schema]
@@ -583,7 +584,16 @@ Whether you use default, custom, or hybrid steps, you have maximum flexibility w
 
 === Composition
 
-Should you ever need to make a plain old Ruby object functionally composable, then you can _include_ the `Pipeable::Composable` module which will give you the necessary `\#>>`, `#<<`, and `#call` methods where you only need to implement the `#call` method.
+To make a plain old Ruby object functionally composable, include `Core::Composable` from the {core_link} gem which is required by Pipeable for you. Example:
+
+[source,ruby]
+----
+class Demo
+  include Core::Composable
+end
+----
+
+The above will allow you to send the following messages: `\#>>`, `#<<`, and `#call`. All you need to do is implement the `#call` message and you get the rest for free. See the {core_link} gem for details.
 
 == Development
 
