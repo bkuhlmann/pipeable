@@ -24,6 +24,13 @@ RSpec.describe Pipeable::Composable do
   let(:multiplier) { -> value { value * 2 } }
 
   describe "#>>" do
+    it "prints warning" do
+      expectation = proc { (composable >> multiplier).call 3 }
+      warning = "`#>>` is deprecated, use `Core::Composable#>>` instead.\n"
+
+      expect(&expectation).to output(warning).to_stderr
+    end
+
     it "answers computed value when first" do
       result = (composable >> multiplier).call 3
       expect(result).to eq(16)
@@ -36,6 +43,13 @@ RSpec.describe Pipeable::Composable do
   end
 
   describe "#<<" do
+    it "prints warning" do
+      expectation = proc { (composable << multiplier).call 3 }
+      warning = "`#<<` is deprecated, use `Core::Composable#<<` instead.\n"
+
+      expect(&expectation).to output(warning).to_stderr
+    end
+
     it "answers computed value when first" do
       result = (composable << multiplier).call 3
       expect(result).to eq(11)
