@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "core"
 require "spec_helper"
 
 RSpec.describe Pipeable::Pipe do
@@ -10,7 +11,7 @@ RSpec.describe Pipeable::Pipe do
 
     let :composer do
       Class.new do
-        include Pipeable::Composable
+        include Core::Composable
 
         def initialize default = 1
           @default = default

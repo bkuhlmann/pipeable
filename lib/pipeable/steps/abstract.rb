@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "core"
 require "dry/monads"
 
 module Pipeable
@@ -7,7 +8,7 @@ module Pipeable
     # Provides a custom step blueprint.
     class Abstract
       include Dry::Monads[:result]
-      include Composable
+      include Core::Composable
 
       def initialize *positionals, **keywords, &block
         @base_positionals = positionals
