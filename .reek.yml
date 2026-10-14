@@ -9,3 +9,5 @@ detectors:
     exclude:
       - "Pipeable::Builder#define_pipe"
       - "Pipeable::Builder#define_steps"
+  UnusedParameters:
+    enabled: false
